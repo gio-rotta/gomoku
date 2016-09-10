@@ -1,0 +1,86 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link href="vendor/bootstrap.css" rel="stylesheet">
+	</head>
+	<style>
+		.tabuleiro {
+			padding: 0;
+			width: 622px;
+			margin: 0 auto;
+			border: 1px solid #aaa;
+			min-height: 622px;
+			box-sizing: border-box;
+			padding: 10px 10px;
+			background: url('img/grid.png') 10px;
+			margin-top: 30px;
+		}
+
+		.casa {
+			float: left;
+			width: 40px;
+			height: 40px;
+			cursor: pointer;
+		}
+
+		.casa::after {
+			content: ' ';
+			position: absolute;
+			height: 40px;
+			width: 40px;
+			border-radius: 50%;
+			background: red;
+			opacity: 0.1;
+			visibility: hidden;
+		}
+
+		.casa:hover:after {
+			visibility: visible;
+		}
+
+		.peca {
+			position: absolute;
+			width: 40px;
+			height: 40px;
+		}
+
+		.peca.branca {
+			background: url('img/white.png') center center no-repeat;
+		}
+
+		.peca.preta {
+			background: url('img/black.png') center center no-repeat
+		}
+
+		.carregando {
+			position: fixed;
+			z-index: 99;
+			height: 100%;
+    		width: 100%;
+    		background: rgba(255,255,255,0.5) url('img/carregando.gif') center center no-repeat;
+		}
+
+	</style>
+	<body>
+		<div class="carregando hidden"></div>
+		<div class="container" id="app">
+		<ul class="tabuleiro"></ul>
+		</div>
+		<!-- Vendor -->
+		<script src="vendor/jquery-1.12.3.min.js"></script>
+		<script src="vendor/bootstrap.min.js"></script>
+		<script src="vendor/underscore.min.js"></script>
+		<script src="vendor/backbone-min.js"></script>
+		<!-- IA -->
+		<script src="Grafo.class.js"></script>
+		<script src="Tabuleiro.class.js"></script>
+		<script src="Verificador.class.js"></script>
+		<script src="GeradorEstados.class.js"></script>
+		<!-- Views -->
+		<script src="view/jogo.view.js"></script>
+		<script type="text/javascript">
+		        var tabuleiroModel = new TabuleiroModel({'linhas': 15, 'colunas': 15});
+		        var tabuleiroView = new TabuleiroView({el: $('.tabuleiro'), cor:1, model:tabuleiroModel});
+	    </script>
+	</body>
+</html>
