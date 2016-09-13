@@ -46,6 +46,12 @@ function Grafo () {
 	this._numeroVertices = 0;
 	this._numeroArestas = 0;
 
+	this.reiniciarGrafo = function() {
+		this._vertices = [];
+		this._numeroVertices = 0;
+		this._numeroArestas = 0;		
+	}
+
 	this.adicionaVertice = function(v, dados){
 		if (!this._vertices[v]) {
 		this._vertices[v] = {

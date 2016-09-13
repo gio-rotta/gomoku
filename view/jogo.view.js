@@ -105,7 +105,7 @@ var TabuleiroView = Backbone.View.extend({
     this.tabuleiro = new Tabuleiro(this.model.get('colunas'), this.model.get('linhas'));
     this.verificador = new Verificador(this.tabuleiro, 1);
     this.grafo = new Grafo();
-    this.gerador = new GeradorEstados(this.tabuleiro, 4, this.verificador, this.grafo, 0);
+    this.gerador = new GeradorEstados(this.tabuleiro, 3, this.verificador, this.grafo, 0);
     this.verticeRaiz = this.gerador._index;
     this.render();
     this.listenTo(this.pecasJogador, 'add', this.ativarInteligenciaArtificial);
@@ -125,50 +125,60 @@ var TabuleiroView = Backbone.View.extend({
     }  
   },
 
-  ativarInteligenciaArtificial: function(peca) {
-    $('.carregando').toggleClass('hidden')
-    _.defer(function() {
-      this.tabuleiro.adicionarPeca(peca.get('cor'), peca.get('linha'), peca.get('coluna'));
-
-      if(this.verticeRaiz == 0) {
-        this.grafo.adicionaVertice(this.gerador._index, this.tabuleiro);
-      } else { 
-        this.grafo.adicionaVertice(++this.gerador._index, this.tabuleiro);
+  adicionarNiveisArvore: function(verticeRaiz, niveis, numeroNiveis, indiceNivel) {
+    var cor;
+    if (++niveis <= numeroNiveis) {
+      
+      if (niveis % 2 == 0) {
+        cor = this.corPecaComputador;
+      } else {
+        cor = this.corPecaJogador;
       }
 
-      this.gerador.gerarNovosEstados(this.verticeRaiz, this.tabuleiro, this.corPecaComputador);
-
-      //segundo nivel
-      this.grafo.emitidos(this.verticeRaiz).forEach(function(vertice) {
+      this.grafo.emitidos(verticeRaiz).forEach(function(vertice) {
 
         var tabuleiroRaiz = this.grafo.dadosDoVertice(vertice);
-        this.gerador.gerarNovosEstados(vertice, tabuleiroRaiz, this.corPecaJogador);
+        this.gerador.gerarNovosEstados(vertice, tabuleiroRaiz, cor, (indiceNivel/1.5));
+        this.adicionarNiveisArvore(vertice, niveis, numeroNiveis);
 
-        //terceiro nivel
-        // this.grafo.emitidos(vertice).forEach(function(vertice) {
+      }.bind(this));
+    }
+  },
 
-        //   var tabuleiroRaiz = this.grafo.dadosDoVertice(vertice);
-        //   this.gerador.gerarNovosEstados(vertice, tabuleiroRaiz, this.corPecaComputador);
-    
-        // }.bind(this))
-
-      }.bind(this))
-
-      this.verticeRaiz = this.grafo.buscaMinMaxComPoda(this.verticeRaiz, "computador", {score:-Infinity}, {score: Infinity}).id;
-
-      //2º nivel - pegar um nivel antes e remover filhos
+  recuperarNodoNivelCorreto: function(numeroNiveis) {
+    this.verticeRaiz = this.grafo.buscaMinMaxComPoda(this.verticeRaiz, "computador", {score:-Infinity}, {score: Infinity}).id;
+    for (var i = 0; i < numeroNiveis; i++) {
       this.verticeRaiz = this.grafo.recebidos(this.verticeRaiz)[0];
-      this.grafo.emitidos(this.verticeRaiz).forEach(function(v) {
-        this.grafo.removeVertice(v);
-      }.bind(this))
+    }
+  },
 
-      //1º nivel - pegar um nivel antes e remover filhos
-      // this.verticeRaiz = this.grafo.recebidos(this.verticeRaiz)[0];
-      // this.grafo.emitidos(this.verticeRaiz).forEach(function(v) {
-      //   this.grafo.removeVertice(v);
-      // }.bind(this))
+  manipularNiveisArvore: function(numeroNiveis, indiceNivel) {
+    this.adicionarNiveisArvore(this.verticeRaiz, 0, numeroNiveis, indiceNivel);
+    this.recuperarNodoNivelCorreto(numeroNiveis)
+  },
+
+  ativarInteligenciaArtificial: function(peca) {
+    $('.carregando').toggleClass('hidden')
+
+    this.tabuleiro.adicionarPeca(peca.get('cor'), peca.get('linha'), peca.get('coluna'));
+
+    if(this.verticeRaiz == 0) {
+      this.grafo.adicionaVertice(this.gerador._index, this.tabuleiro);
+    } else { 
+      this.grafo.adicionaVertice(++this.gerador._index, this.tabuleiro);
+    }
+
+    _.defer(function() {
+      this.gerador.gerarNovosEstados(this.verticeRaiz, this.tabuleiro, this.corPecaComputador, 1);
+
+      var indiceNivel = this.tabuleiro.linhas * this.tabuleiro.colunas / 1.5;
+      var numeroNiveis = Math.round((this.tabuleiro._nPretas + this.tabuleiro._nBrancas) / indiceNivel) + 1;
+      this.manipularNiveisArvore(numeroNiveis, 1);
 
       this.tabuleiro = this.grafo.dadosDoVertice(this.verticeRaiz);
+      this.grafo.reiniciarGrafo();
+      this.grafo.adicionaVertice(this.verticeRaiz, this.tabuleiro);
+
       var pecaResultante = this.tabuleiro._ultimaPreta;
 
       this.tabuleiroArray[pecaResultante.linha][pecaResultante.coluna].adicionarPecaComputador();

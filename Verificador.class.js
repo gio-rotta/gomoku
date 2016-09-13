@@ -4,7 +4,7 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 	this._tabuleiro = tabuleiro._tabuleiro;
 	this._multiplicadorDefensivo = multiplicadorDefensivo;
 
-	this.verificarJogada = function(tabuleiro, peca) {
+	this.verificarJogada = function(tabuleiro, peca, indiceNivel) {
 
 		this._jogo = tabuleiro;
 		this._tabuleiro = tabuleiro._tabuleiro;
@@ -31,7 +31,7 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 		var pontos = pontos + (this._multiplicadorDefensivo * pontosAdversario);
 
 		//console.log('linha',peca.linha,'coluna', peca.coluna, statusDiagonalNordeste,statusDiagonalNordesteAdversaria, pontos)
-		return pontos;
+		return pontos * indiceNivel;
 	}
 
 	this.calculoHeuristicas = function(verificacoes) {
@@ -39,8 +39,13 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 
 		verificacoes.forEach(function(verificacao) {
 			// 1º - completar a sequência de 5;
+		    if (verificacao.sequencias > 5 ) {
+		    	pontos += 1000
+		    } else
+
+			// 1º - completar a sequência de 5;
 		    if (verificacao.sequencias > 4 ) {
-		    	pontos += 500
+		    	pontos += 1000
 		    } else
 
 			// 2º - caso tenha uma sequência de 4 peças e espaço para mais 1 peça;
@@ -55,6 +60,14 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 
 			// 4º - caso tenha uma sequência 2 peças e pelo menos mais 1 peça, em uma linha com espaçamento de pelo menos 6 casas;
 			if (verificacao.sequencias + verificacao.vazias + verificacao.semiSequencias > 5 && verificacao.sequencias > 1 && verificacao.semiSequencias > 0) {
+				pontos += 100
+			} else
+
+			if (verificacao.sequencias > 2 && verificacao.semiSequencias >= 1 && verificacao.vazias > 0) {
+				pontos += 100
+			} else
+
+			if (verificacao.sequencias > 1 && verificacao.semiSequencias >= 1 && verificacao.vazias > 0) {
 				pontos += 100
 			} else
 

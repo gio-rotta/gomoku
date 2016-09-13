@@ -29,15 +29,14 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
   	}
 
 	/* Gerar um nível da árvore estado */
-	this.gerarNovosEstados = function(indexInicial, estadoInicial, cor) {
+	this.gerarNovosEstados = function(indexInicial, estadoInicial, cor, indiceNivel) {
 
 		var jogo = _.clone(estadoInicial);
 		var tabuleiro = jogo._tabuleiro;
 
 		var pontoCM = this.calculoCentroDeMassa(jogo);
 		
-		var inicio = (pontoCM.linha > pontoCM.coluna)? pontoCM.coluna : pontoCM.linha;
-		var fim = jogo.linhas;
+		var fim = (Math.abs(pontoCM.linha - jogo.linhas) > Math.abs(pontoCM.coluna - jogo.colunas))? Math.abs(pontoCM.linha - jogo.linhas) : Math.abs(pontoCM.coluna - jogo.colunas);
 
 		var vaziasCima = 0;
 		var vaziasBaixo = 0;
@@ -47,7 +46,7 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 
 		if (tabuleiro[pontoCM.linha][pontoCM.coluna] == 0) {
 			if (tabuleiro[pontoCM.linha][pontoCM.coluna] == 0) {
-				var novoEstado = this.criarEstado( pontoCM.linha, pontoCM.coluna, cor, jogo, this._verificador);
+				var novoEstado = this.criarEstado( pontoCM.linha, pontoCM.coluna, cor, jogo, this._verificador, indiceNivel);
 				var adicionou = grafo.adicionaVertice(++this._index, novoEstado);
 				if (adicionou) grafo.conecta(indexInicial, this._index);
 			}
@@ -55,19 +54,19 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 
 		var contador = 1;
 		//linha
-		for (var i = inicio - 1; i < fim; i++) {
+		for (var i = 0; i < fim; i++) {
 			var limiteCima = (pontoCM.linha - contador >= 0);
 			var limiteBaixo = (pontoCM.linha + contador < jogo.linhas);
 			var limiteEsquerda = (pontoCM.coluna - contador >= 0);
 			var limiteDireita = (pontoCM.coluna + contador < jogo.colunas);
 
 			var inicioDaLinha = (limiteEsquerda)? pontoCM.coluna - contador : 0;
-			var fimDaLinha = (limiteDireita)? pontoCM.coluna + contador : jogo.colunas;
+			var fimDaLinha = (limiteDireita)? pontoCM.coluna + contador : jogo.colunas - 1;
 
-			var linhaBaixo = (limiteBaixo)? pontoCM.linha + contador : jogo.linhas;
+			var linhaBaixo = (limiteBaixo)? pontoCM.linha + contador : jogo.linhas - 1;
 			var linhaCima = (limiteCima)? pontoCM.linha - contador : 0;
 			
-			var linhaBaixo2 = (limiteBaixo)? pontoCM.linha + contador - 1 : jogo.linhas;
+			var linhaBaixo2 = (limiteBaixo)? pontoCM.linha + contador - 1 : jogo.linhas - 1;
 			var linhaCima2 = (limiteCima)? pontoCM.linha - contador + 1 : 0;
 
 			if ((!limiteDireita || vaziasDireita > numeroCorte) && (!limiteEsquerda || vaziasEsquerda > numeroCorte) && 
@@ -78,9 +77,9 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 			// baixo
 			if ( limiteBaixo && vaziasBaixo < numeroCorte) {
 				var mudanca = 0
-					for (var j = inicioDaLinha; j < fimDaLinha; j++) {
+					for (var j = inicioDaLinha; j <= fimDaLinha; j++) {
 						if (tabuleiro[linhaBaixo][j] == 0) {
-							var novoEstado = this.criarEstado( linhaBaixo, j, cor, jogo,  this._verificador);
+							var novoEstado = this.criarEstado( linhaBaixo, j, cor, jogo,  this._verificador, indiceNivel);
 							var adicionou = grafo.adicionaVertice(++this._index, novoEstado);
 							if (adicionou) grafo.conecta(indexInicial, this._index);
 						} else {
@@ -93,9 +92,9 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 			// cima
 			if ( limiteCima && vaziasCima < numeroCorte) {
 				var mudanca = 0
-				for (var j = inicioDaLinha; j < fimDaLinha; j++) {
+				for (var j = inicioDaLinha; j <= fimDaLinha; j++) {
 					if (tabuleiro[linhaCima][j] == 0) {
-						var novoEstado = this.criarEstado( linhaCima, j, cor, jogo,  this._verificador);
+						var novoEstado = this.criarEstado( linhaCima, j, cor, jogo,  this._verificador, indiceNivel);
 						var adicionou = grafo.adicionaVertice(++this._index, novoEstado);
 						if (adicionou) grafo.conecta(indexInicial, this._index);
 					} else {
@@ -111,7 +110,7 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 				var mudanca = 0
 				for (var j = linhaCima2; j <= linhaBaixo2; j++) {
 					if (tabuleiro[j][inicioDaLinha] == 0) {
-						var novoEstado = this.criarEstado( j, inicioDaLinha, cor, jogo,  this._verificador);
+						var novoEstado = this.criarEstado( j, inicioDaLinha, cor, jogo,  this._verificador, indiceNivel);
 						var adicionou = grafo.adicionaVertice(++this._index, novoEstado);
 						if (adicionou) grafo.conecta(indexInicial, this._index);
 					} else {
@@ -126,7 +125,7 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 				var mudanca = 0
 				for (var j = linhaCima2; j <= linhaBaixo2; j++) {
 					if (tabuleiro[j][fimDaLinha] == 0) {
-						var novoEstado = this.criarEstado( j, fimDaLinha, cor, jogo,  this._verificador);
+						var novoEstado = this.criarEstado( j, fimDaLinha, cor, jogo,  this._verificador, indiceNivel);
 						var adicionou = grafo.adicionaVertice(++this._index, novoEstado);
 						if (adicionou) grafo.conecta(indexInicial, this._index);
 					} else {
@@ -139,13 +138,12 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 		}
 	}
 
-	this.criarEstado = function(linha, coluna, cor, tabuleiro, verificador) {
+	this.criarEstado = function(linha, coluna, cor, tabuleiro, verificador, indiceNivel) {
 		var novoEstado = JSON.parse(JSON.stringify(tabuleiro)); 
 		novoEstado.adicionarPeca = tabuleiro.adicionarPeca;
-		var valorJogada = this._verificador.verificarJogada(novoEstado, {linha: linha, coluna: coluna, cor: cor});
+		var valorJogada = this._verificador.verificarJogada(novoEstado, {linha: linha, coluna: coluna, cor: cor}, indiceNivel);
 		novoEstado._valorAcumulado += valorJogada;
 		novoEstado.adicionarPeca(cor, linha, coluna);
-		//console.log(this._index,'linha',linha,'coluna',coluna,'tabuleiro',tabuleiro._tabuleiro[linha][coluna])
 		return novoEstado;
 	}
 
