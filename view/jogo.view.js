@@ -184,6 +184,7 @@ var TabuleiroView = Backbone.View.extend({
     $('.carregando').toggleClass('hidden')
 
     this.tabuleiro.adicionarPeca(peca.get('cor'), peca.get('linha'), peca.get('coluna'));
+
     if (this.verificador.verificarFimJogo(peca.get('coluna'), peca.get('linha'), peca.get('cor'))) {
       $('#modal-vencedor').modal('show');
     }
@@ -201,19 +202,20 @@ var TabuleiroView = Backbone.View.extend({
       var numeroNiveis = Math.round((this.tabuleiro._nPretas + this.tabuleiro._nBrancas) / indiceNivel) + 1;
       this.manipularNiveisArvore(numeroNiveis, 1);
 
-      this.tabuleiro = this.grafo.dadosDoVertice(this.verticeRaiz);
+      var tabuleiro = this.grafo.dadosDoVertice(this.verticeRaiz);
       this.grafo.reiniciarGrafo();
-      this.grafo.adicionaVertice(this.verticeRaiz, this.tabuleiro);
+      this.grafo.adicionaVertice(this.verticeRaiz, tabuleiro);
 
       if (this.corPecaComputador == 2) {
-        var pecaResultante = this.tabuleiro._ultimaPreta;
+        var pecaResultante = tabuleiro._ultimaPreta;
       } else {
-        var pecaResultante = this.tabuleiro._ultimaBranca;
+        var pecaResultante = tabuleiro._ultimaBranca;
       }
 
+      this.tabuleiro = tabuleiro;
       this.tabuleiroArray[pecaResultante.linha][pecaResultante.coluna].adicionarPecaComputador();
       if (this.verificador.verificarFimJogo(pecaResultante.coluna, pecaResultante.linha, this.corPecaComputador)) {
-       $('#modal-perdedor').modal('show');
+        $('#modal-perdedor').modal('show');
       }
 
       $('.carregando').toggleClass('hidden')

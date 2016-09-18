@@ -30,7 +30,6 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 		var pontosAdversario = this.calculoHeuristicas([statusLinhaAdversaria, statusColunasAdversaria, statusDiagonalNordesteAdversaria, statusDiagonalNoroesteAdversaria]);
 		var pontos = pontos + (this._multiplicadorDefensivo * pontosAdversario);
 
-		//console.log('linha',peca.linha,'coluna', peca.coluna, statusDiagonalNordeste,statusDiagonalNordesteAdversaria, pontos)
 		return pontos * indiceNivel;
 	}
 
@@ -40,7 +39,9 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 		var statusDiagonalNoroeste = this.verificarDiagonalNoroeste(coluna, linha, cor);
 		var statusDiagonalNordeste = this.verificarDiagonalNordeste(coluna, linha, cor);
 		var pontos = this.calculoHeuristicas([statusLinha, statusColunas, statusDiagonalNordeste, statusDiagonalNoroeste]);
-		if (pontos > 340) {
+					console.log(pontos)
+					console.log(statusLinha)
+		if (pontos > 300) {
 			return true;
 		} else {
 			return false;
