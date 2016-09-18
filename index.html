@@ -66,6 +66,48 @@
 		<div class="container" id="app">
 		<ul class="tabuleiro"></ul>
 		</div>
+		<div class="modal fade" id="modal-opcao" tabindex="-1" role="dialog">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h4 class="modal-title">Escolha com que cor você deseja jogar</h4>
+		      </div>
+		      <div class="modal-body">
+		      	<div class="row">
+	    			<div class="col-md-12 form-group"><input type="radio" name="cor" value="1" checked>Branca</div>	
+	    			<div class="col-md-12 form-group"><input type="radio" name="cor" value="2">Preta</div>	
+	    		</div>
+		      </div>
+		      <div class="modal-footer">
+        		<button type="button" class="btn btn-primary js-escolher-opcao">Escolher</button>
+      		  </div>
+		    </div>
+		  </div>
+		</div>
+		<div class="modal fade" id="modal-vencedor" tabindex="-1" role="dialog">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h4 class="modal-title">Você venceu! :)</h4>
+		      </div>
+		      <div class="modal-body">
+		        <p>Atualize a página para jogar novamente</p>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<div class="modal fade" id="modal-perdedor" tabindex="-1" role="dialog">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h4 class="modal-title">Você perdeu! :(</h4>
+		      </div>
+		      <div class="modal-body">
+		        <p>Atualize a página para jogar novamente</p>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 		<!-- Vendor -->
 		<script src="vendor/jquery-1.12.3.min.js"></script>
 		<script src="vendor/bootstrap.min.js"></script>
@@ -79,8 +121,7 @@
 		<!-- Views -->
 		<script src="view/jogo.view.js"></script>
 		<script type="text/javascript">
-		        var tabuleiroModel = new TabuleiroModel({'linhas': 15, 'colunas': 15});
-		        var tabuleiroView = new TabuleiroView({el: $('.tabuleiro'), cor:1, model:tabuleiroModel});
+				var modalCorView = new modalCorView();
 	    </script>
 	</body>
 </html>

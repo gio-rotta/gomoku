@@ -91,6 +91,24 @@ var CasaView = Backbone.View.extend({
 
 });
 
+var modalCorView = Backbone.View.extend({
+  el: '#modal-opcao',
+
+  events: {
+    'click .js-escolher-opcao': 'inicializarJogo'
+  },
+
+  initialize: function() {
+    this.$el.modal('show');
+  },
+
+  inicializarJogo: function() {
+    console.log('teste')
+    var tabuleiroModel = new TabuleiroModel({'linhas': 15, 'colunas': 15});
+    var tabuleiroView = new TabuleiroView({el: $('.tabuleiro'), cor:$('input[name=cor]:checked').val(), model:tabuleiroModel});
+    this.$el.modal('hide');
+  }
+});
 
 var TabuleiroView = Backbone.View.extend({
 
@@ -105,10 +123,15 @@ var TabuleiroView = Backbone.View.extend({
     this.tabuleiro = new Tabuleiro(this.model.get('colunas'), this.model.get('linhas'));
     this.verificador = new Verificador(this.tabuleiro, 1);
     this.grafo = new Grafo();
-    this.gerador = new GeradorEstados(this.tabuleiro, 3, this.verificador, this.grafo, 0);
+    this.gerador = new GeradorEstados(this.tabuleiro, 4, this.verificador, this.grafo, 0);
     this.verticeRaiz = this.gerador._index;
     this.render();
     this.listenTo(this.pecasJogador, 'add', this.ativarInteligenciaArtificial);
+
+    if (this.corPecaComputador == 1) {
+      this.tabuleiro.adicionarPeca(this.corPecaComputador, 7, 7);
+      this.tabuleiroArray[7][7].adicionarPecaComputador();
+    }
   },
 
   render: function() {
@@ -161,6 +184,9 @@ var TabuleiroView = Backbone.View.extend({
     $('.carregando').toggleClass('hidden')
 
     this.tabuleiro.adicionarPeca(peca.get('cor'), peca.get('linha'), peca.get('coluna'));
+    if (this.verificador.verificarFimJogo(peca.get('coluna'), peca.get('linha'), peca.get('cor'))) {
+      $('#modal-vencedor').modal('show');
+    }
 
     if(this.verticeRaiz == 0) {
       this.grafo.adicionaVertice(this.gerador._index, this.tabuleiro);
@@ -179,9 +205,16 @@ var TabuleiroView = Backbone.View.extend({
       this.grafo.reiniciarGrafo();
       this.grafo.adicionaVertice(this.verticeRaiz, this.tabuleiro);
 
-      var pecaResultante = this.tabuleiro._ultimaPreta;
+      if (this.corPecaComputador == 2) {
+        var pecaResultante = this.tabuleiro._ultimaPreta;
+      } else {
+        var pecaResultante = this.tabuleiro._ultimaBranca;
+      }
 
       this.tabuleiroArray[pecaResultante.linha][pecaResultante.coluna].adicionarPecaComputador();
+      if (this.verificador.verificarFimJogo(pecaResultante.coluna, pecaResultante.linha, this.corPecaComputador)) {
+       $('#modal-perdedor').modal('show');
+      }
 
       $('.carregando').toggleClass('hidden')
     }.bind(this))

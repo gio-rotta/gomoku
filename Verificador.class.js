@@ -34,33 +34,42 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 		return pontos * indiceNivel;
 	}
 
+	this.verificarFimJogo = function(coluna, linha, cor) {
+		var statusLinha = this.verificarLinhas(coluna, linha, cor);
+		var statusColunas = this.verificarColunas(coluna, linha, cor);
+		var statusDiagonalNoroeste = this.verificarDiagonalNoroeste(coluna, linha, cor);
+		var statusDiagonalNordeste = this.verificarDiagonalNordeste(coluna, linha, cor);
+		var pontos = this.calculoHeuristicas([statusLinha, statusColunas, statusDiagonalNordeste, statusDiagonalNoroeste]);
+		if (pontos > 340) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	this.calculoHeuristicas = function(verificacoes) {
 		var pontos = 0;
 
 		verificacoes.forEach(function(verificacao) {
-			// 1º - completar a sequência de 5;
-		    if (verificacao.sequencias > 5 ) {
-		    	pontos += 1000
-		    } else
 
 			// 1º - completar a sequência de 5;
 		    if (verificacao.sequencias > 4 ) {
-		    	pontos += 1000
+		    	pontos += 500
 		    } else
 
 			// 2º - caso tenha uma sequência de 4 peças e espaço para mais 1 peça;
 			if (verificacao.sequencias == 4 && verificacao.vazias > 0) {
-				pontos += 100
+				pontos += 300
 			} else
 
 			// 3º - caso tenha uma sequência de 3 peças e espaço de 1 ou mais peças nas extremidades da sequencia;
 			if (verificacao.sequencias == 3 && verificacao.vaziasEsquerda > 1 && verificacao.vaziasDireita > 1) {
-				pontos += 100
+				pontos += 200
 			} else
 
 			// 4º - caso tenha uma sequência 2 peças e pelo menos mais 1 peça, em uma linha com espaçamento de pelo menos 6 casas;
 			if (verificacao.sequencias + verificacao.vazias + verificacao.semiSequencias > 5 && verificacao.sequencias > 1 && verificacao.semiSequencias > 0) {
-				pontos += 100
+				pontos += 200
 			} else
 
 			if (verificacao.sequencias > 2 && verificacao.semiSequencias >= 1 && verificacao.vazias > 0) {
