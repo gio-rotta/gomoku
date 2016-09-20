@@ -39,8 +39,6 @@ function Verificador(tabuleiro, multiplicadorDefensivo) {
 		var statusDiagonalNoroeste = this.verificarDiagonalNoroeste(coluna, linha, cor);
 		var statusDiagonalNordeste = this.verificarDiagonalNordeste(coluna, linha, cor);
 		var pontos = this.calculoHeuristicas([statusLinha, statusColunas, statusDiagonalNordeste, statusDiagonalNoroeste]);
-					console.log(pontos)
-					console.log(statusLinha)
 		if (pontos > 300) {
 			return true;
 		} else {

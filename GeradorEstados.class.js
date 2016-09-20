@@ -26,6 +26,10 @@ function GeradorEstados(tabuleiro, numeroCorte, verificador, grafo, index) {
 			}
   			return beta;
   		}
+  	};
+
+  	this.setNumeroCorte = function(numeroCorte) {
+  		this._numeroCorte = numeroCorte;
   	}
 
 	/* Gerar um nível da árvore estado */

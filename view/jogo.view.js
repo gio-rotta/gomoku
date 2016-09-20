@@ -115,6 +115,7 @@ var TabuleiroView = Backbone.View.extend({
   model: TabuleiroModel,
 
   initialize: function(options) {
+    this.numeroCorte = 3;
     this.corPecaJogador = options.cor;
     this.corPecaComputador = (options.cor == 1)? 2 : 1;
     this.pecasJogador = new PecasCollection();
@@ -123,7 +124,7 @@ var TabuleiroView = Backbone.View.extend({
     this.tabuleiro = new Tabuleiro(this.model.get('colunas'), this.model.get('linhas'));
     this.verificador = new Verificador(this.tabuleiro, 1);
     this.grafo = new Grafo();
-    this.gerador = new GeradorEstados(this.tabuleiro, 4, this.verificador, this.grafo, 0);
+    this.gerador = new GeradorEstados(this.tabuleiro, this.numeroCorte, this.verificador, this.grafo, 0);
     this.verticeRaiz = this.gerador._index;
     this.render();
     this.listenTo(this.pecasJogador, 'add', this.ativarInteligenciaArtificial);
@@ -162,7 +163,7 @@ var TabuleiroView = Backbone.View.extend({
 
         var tabuleiroRaiz = this.grafo.dadosDoVertice(vertice);
         this.gerador.gerarNovosEstados(vertice, tabuleiroRaiz, cor, (indiceNivel/1.5));
-        this.adicionarNiveisArvore(vertice, niveis, numeroNiveis);
+        this.adicionarNiveisArvore(vertice, niveis, numeroNiveis, (indiceNivel/1.5));
 
       }.bind(this));
     }
@@ -176,8 +177,10 @@ var TabuleiroView = Backbone.View.extend({
   },
 
   manipularNiveisArvore: function(numeroNiveis, indiceNivel) {
+    this.gerador.setNumeroCorte(1);
     this.adicionarNiveisArvore(this.verticeRaiz, 0, numeroNiveis, indiceNivel);
     this.recuperarNodoNivelCorreto(numeroNiveis)
+    this.gerador.setNumeroCorte(this.numeroCorte)
   },
 
   ativarInteligenciaArtificial: function(peca) {
@@ -187,6 +190,7 @@ var TabuleiroView = Backbone.View.extend({
 
     if (this.verificador.verificarFimJogo(peca.get('coluna'), peca.get('linha'), peca.get('cor'))) {
       $('#modal-vencedor').modal('show');
+      return;
     }
 
     if(this.verticeRaiz == 0) {
